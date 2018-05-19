@@ -13,6 +13,8 @@ def number_of_workers():
 
 
 class StandaloneApplication(gunicorn.app.base.BaseApplication):
+    # copied from http://docs.gunicorn.org/en/latest/custom.html
+
     def __init__(self, app, options=None):
         self.options = options or {}
         self.application = app

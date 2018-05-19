@@ -2,11 +2,12 @@ from django.db import models
 
 
 class Area(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=10)
+    label = models.CharField(max_length=200)
     researcher_file = models.CharField(max_length=200)
 
     def __str__(self):
-        return self.name
+        return '{0} - {1}'.format(self.name, self.label)
 
 
 class Conference(models.Model):

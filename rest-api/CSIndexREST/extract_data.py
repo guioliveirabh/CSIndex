@@ -31,7 +31,7 @@ class DataExtractor:
     def extract_areas(self):
         with open(self.data_dir / self.AREAS_FILE) as csv_file:
             reader = csv.reader(csv_file)
-            areas = [Area(name=row[0], researcher_file=row[1]) for row in reader]
+            areas = [Area(name=row[0], researcher_file=row[1], label=row[3]) for row in reader]
             Area.objects.bulk_create(areas)
 
     def extract_conferences(self):
