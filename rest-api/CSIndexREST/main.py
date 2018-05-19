@@ -1,8 +1,11 @@
 import multiprocessing
+import pathlib
 
 import gunicorn.app.base
 from gunicorn.six import iteritems
 from django.core.handlers.wsgi import WSGIHandler
+
+from .extract_data import DataExtractor
 
 
 def number_of_workers():
@@ -31,4 +34,6 @@ def main():
         'workers': number_of_workers(),
     }
     print(options)
+    data_extractor = DataExtractor(pathlib.Path('/home/guilherme/git/CSIndex/data'))
+    data_extractor.run()
     StandaloneApplication(WSGIHandler(), options).run()
