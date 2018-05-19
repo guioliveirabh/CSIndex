@@ -10,6 +10,7 @@ from rest_api import views
 router = DefaultRouter()
 router.register(r'areas', views.AreaViewSet)
 router.register(r'conferences', views.ConferenceViewSet)
+router.register(r'departments', views.DepartmentViewSet)
 
 title = 'CSIndex'
 
