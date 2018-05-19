@@ -1,16 +1,16 @@
-se,se-is-researchers.csv,10
-is,se-is-researchers.csv,10
-pl,pl-researchers.csv,10
-net,net-ds-researchers.csv,8
-ds,net-ds-researchers.csv,8
-mobile,net-ds-researchers.csv,8
-db,db-ir-researchers.csv,10
-ir,db-ir-researchers.csv,10
-chi,chi-researchers.csv,8
-arch,arch-researchers.csv,8
-theory,theory-researchers.csv,8
-data,db-ir-researchers.csv,8
-security,security-researchers.csv,8
-ai,db-ir-researchers.csv,7
-vision,vision-researchers.csv,6
-formal,formal-researchers.csv,10
+se,se-is-researchers.csv,10,Software Engineering
+is,se-is-researchers.csv,10,Information Systems
+pl,pl-researchers.csv,10,Programming Languages
+net,net-ds-researchers.csv,8,Computer Networks
+ds,net-ds-researchers.csv,8,Distributed Systems
+mobile,net-ds-researchers.csv,8,Mobile Computing
+db,db-ir-researchers.csv,10,Databases
+ir,db-ir-researchers.csv,10,Web & Information Retrieval
+chi,chi-researchers.csv,8,Human-Computer Interaction
+arch,arch-researchers.csv,8,Computer Architecture & HPC
+theory,theory-researchers.csv,8,Algorithms & Complexity
+data,db-ir-researchers.csv,8,Data Mining & Machine Learning
+security,security-researchers.csv,8,Security & Cryptography
+ai,db-ir-researchers.csv,7,Artificial Intelligence
+vision,vision-researchers.csv,6,Computer Vision
+formal,formal-researchers.csv,10,Formal Methods & Logic
