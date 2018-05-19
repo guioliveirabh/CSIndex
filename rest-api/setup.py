@@ -31,7 +31,7 @@ setup(
                       'Markdown==2.6.11', 'django-filter==1.1.0', 'django-crispy-forms==1.7.2',
                       'django-guardian==1.4.9', 'djangorestframework-csv==2.1.0'],
     extras_require={
-        'dev': ['pylint'],
+        'dev': ['pylint', 'httpie'],
     },
     package_data={},
     entry_points={
