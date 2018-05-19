@@ -1,14 +1,14 @@
 import csv
 import pathlib
 
-from rest_api.models import Area, Conference, Department, Researcher, Paper
+from rest_api.models import Area, Conference, Department, Researcher, Paper, Score
 
 
 class DataExtractor:
     AREAS_FILE = 'research-areas-config.csv'
     CONFERENCES_FILE = '{0}-out-confs.csv'
     PAPERS_FILE = 'profs/search/{0}.csv'
-    #DEPARTMENTS_FILE = '{0}-out-scores.csv'
+    DEPARTMENTS_FILE = '{0}-out-scores.csv'
 
     def __init__(self, data_dir: pathlib.Path):
         self.data_dir = data_dir
@@ -19,12 +19,14 @@ class DataExtractor:
         self.extract_departments()
         self.extract_researchers()
         self.extract_papers()
+        self.extract_department_scores()
 
         print(list(Area.objects.all()))
         print(len(Conference.objects.all()))
         print(len(Department.objects.all()))
         print(len(Researcher.objects.all()))
         print(len(Paper.objects.all()))
+        print(len(Score.objects.all()))
 
     def extract_areas(self):
         with open(self.data_dir / self.AREAS_FILE) as csv_file:
@@ -36,19 +38,10 @@ class DataExtractor:
         for area in Area.objects.all():
             with open(self.data_dir / self.CONFERENCES_FILE.format(area.name)) as csv_file:
                 reader = csv.reader(csv_file)
-                # TODO: get score
                 conferences = [Conference(area=area, name=row[0]) for row in reader]
                 Conference.objects.bulk_create(conferences)
 
     def extract_departments(self):
-        #for area in Area.objects.all():
-        #    with open(self.data_dir / self.DEPARTMENTS_FILE.format(area.name)) as csv_file:
-        #        reader = csv.reader(csv_file)
-        #        # TODO: get score
-        #        department_names = [row[0] for row in reader]
-        #        departments = [Department(name=name) for name in set(department_names)]
-        #        Department.objects.bulk_create(departments)
-
         department_names = set()
         for area in Area.objects.all():
             with open(self.data_dir / area.researcher_file) as csv_file:
@@ -78,7 +71,6 @@ class DataExtractor:
                     researchers_set.add(row[2])
         Researcher.objects.bulk_create(researchers)
 
-
     def extract_papers(self):
         conferences = {conference.name: conference for conference in Conference.objects.all()}
         conference_names = conferences.keys()
@@ -98,3 +90,19 @@ class DataExtractor:
                     papers.append(Paper(year=row[0], conference=conferences[row[1]], title=row[2],
                                         authors=row[3], url=row[4], researcher=researcher))
         Paper.objects.bulk_create(papers)
+
+    def extract_department_scores(self):
+        departments = {department.name: department for department in Department.objects.all()}
+        department_names = departments.keys()
+        scores = []
+
+        for area in Area.objects.all():
+            with open(self.data_dir / self.DEPARTMENTS_FILE.format(area.name)) as csv_file:
+                reader = csv.reader(csv_file)
+                for row in reader:
+                    if row[0] not in department_names:
+                        print(row)
+                        continue
+
+                    scores.append(Score(area=area, department=departments[row[0]], score=float(row[1])))
+            Score.objects.bulk_create(scores)

@@ -6,7 +6,7 @@ class Area(models.Model):
     researcher_file = models.CharField(max_length=200)
 
     def __str__(self):
-        return str(self.name)
+        return self.name
 
 
 class Conference(models.Model):
@@ -19,9 +19,10 @@ class Conference(models.Model):
 
 class Department(models.Model):
     name = models.CharField(max_length=200)
+    scores = models.ManyToManyField(Area, through='Score')
 
     def __str__(self):
-        return str(self.name)
+        return self.name
 
 
 class Researcher(models.Model):
@@ -43,3 +44,12 @@ class Paper(models.Model):
 
     def __str__(self):
         return '{0} - {1} - {2} - {3} - {4}'.format(self.year, self.conference, self.title, self.researcher, self.url)
+
+
+class Score(models.Model):
+    area = models.ForeignKey(Area, on_delete=models.CASCADE)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE)
+    score = models.FloatField()
+
+    def __str__(self):
+        return '{0} - {1} - {2}'.format(self.department, self.area, self.score)
