@@ -4,8 +4,9 @@ from rest_framework import viewsets
 from rest_framework.schemas import AutoSchema
 import coreapi
 
-from .models import Area, Conference, Department, Researcher
-from .serializers import AreaSerializer, ConferenceSerializer, DepartmentSerializer, ResearcherSerializer
+from .models import Area, Conference, Department, Researcher, Paper
+from .serializers import AreaSerializer, ConferenceSerializer, DepartmentSerializer, ResearcherSerializer, \
+    PaperSerializer
 
 
 class FilterListOnlySchema(AutoSchema):
@@ -75,4 +76,22 @@ class ResearcherViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Researcher.objects.all()
     serializer_class = ResearcherSerializer
     filter_class = ResearcherFilter
+    schema = FilterListOnlySchema()
+
+
+class PaperFilter(filters.FilterSet):
+    area = filters.CharFilter(name='conference__area__name', label='Area name')
+    conference = filters.CharFilter(name='conference__name', label='Conference name')
+    department = filters.CharFilter(name='researcher___department__name', label='Department name')
+    researcher = filters.CharFilter(name='researcher__name', label='Researcher name')
+
+    class Meta:
+        model = Paper
+        fields = ['area', 'conference', 'researcher', 'year']
+
+
+class PaperViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Paper.objects.all()
+    serializer_class = PaperSerializer
+    filter_class = PaperFilter
     schema = FilterListOnlySchema()

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Area, Conference, Department, Researcher
+from .models import Area, Conference, Department, Researcher, Paper
 
 
 class AreaSerializer(serializers.ModelSerializer):
@@ -25,3 +25,10 @@ class ResearcherSerializer(serializers.ModelSerializer):
     class Meta:
         model = Researcher
         fields = ('id', 'name', 'department', 'pid')
+
+
+class PaperSerializer(serializers.ModelSerializer):
+    researcher = serializers.StringRelatedField(many=False)
+    class Meta:
+        model = Paper
+        fields = ('id', 'title', 'conference', 'researcher', 'year', 'authors', 'url')

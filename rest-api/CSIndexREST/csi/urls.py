@@ -12,6 +12,7 @@ router.register(r'areas', views.AreaViewSet)
 router.register(r'conferences', views.ConferenceViewSet)
 router.register(r'departments', views.DepartmentViewSet)
 router.register(r'researchers', views.ResearcherViewSet)
+router.register(r'papers', views.PaperViewSet)
 
 title = 'CSIndex'
 
