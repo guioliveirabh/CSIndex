@@ -13,8 +13,7 @@ def setup_django():
     django.setup(set_prefix=False)
     call_command('makemigrations', verbosity=0, interactive=False)
     call_command('migrate', verbosity=0, interactive=False)
-    # call_command('makemigrations')
-    # call_command('migrate')
+    call_command('collectstatic', verbosity=0, interactive=False)
 
 
 def entry_point():
