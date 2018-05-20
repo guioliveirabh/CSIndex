@@ -1,3 +1,4 @@
+from django.db.models import Count, FloatField, Min, Q, Value
 from django.utils.six.moves.urllib import parse as urlparse
 from django_filters import rest_framework as filters
 from rest_framework import viewsets
@@ -40,36 +41,59 @@ class FilterListOnlySchema(AutoSchema):
 
 
 class AreaViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Area.objects.all()
+    queryset = Area.objects.annotate(papers_count=Count('conference__paper__url', distinct=True))
     serializer_class = AreaSerializer
 
 
 class ConferenceFilter(filters.FilterSet):
-    area = filters.CharFilter(name='area__name', label='Area name')
+    area = filters.CharFilter(name='area__name', label='Area name', distinct=True)
 
     class Meta:
         model = Conference
-        fields = ['area']
+        fields = ['area', 'name']
 
 
 class ConferenceViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ConferenceSerializer
-    queryset = Conference.objects.all()
+    queryset = Conference.objects.annotate(papers_count=Count('paper__url', distinct=True)).order_by('area__name',
+                                                                                                     '-papers_count',
+                                                                                                     'name')
     filter_class = ConferenceFilter
     schema = FilterListOnlySchema()
 
 
+class DepartmentFilter(filters.FilterSet):
+    area = filters.CharFilter(name='area', label='Area name', method='filter_area')
+
+    def filter_area(self, queryset, name, value):
+        query = Department.objects.filter(departmentscore__area__name=value)
+        query = query.annotate(score_value=Min('departmentscore__value'))
+        query = query.annotate(researchers_count=Count('researcher__name', distinct=True,
+                                                       filter=Q(researcher__paper__conference__area__name=value)))
+        query = query.order_by('-score_value', 'name')
+        return query
+
+    class Meta:
+        model = Department
+        fields = ['area', 'name']
+
+
 class DepartmentViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Department.objects.all()
+    queryset = Department.objects.annotate(researchers_count=Count('researcher__name', distinct=True),
+                                           score_value=Value(-1.0,
+                                                             output_field=FloatField())).order_by('-researchers_count',
+                                                                                                  'name')
     serializer_class = DepartmentSerializer
+    filter_class = DepartmentFilter
 
 
 class ResearcherFilter(filters.FilterSet):
-    department = filters.CharFilter(name='department__name', label='Department name')
+    area = filters.CharFilter(name='paper__conference__area__name', label='Area name', distinct=True)
+    department = filters.CharFilter(name='department__name', label='Department name', distinct=True)
 
     class Meta:
         model = Researcher
-        fields = ['department']
+        fields = ['area', 'department']
 
 
 class ResearcherViewSet(viewsets.ReadOnlyModelViewSet):
@@ -80,14 +104,14 @@ class ResearcherViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class PaperFilter(filters.FilterSet):
-    area = filters.CharFilter(name='conference__area__name', label='Area name')
-    conference = filters.CharFilter(name='conference__name', label='Conference name')
-    department = filters.CharFilter(name='researcher___department__name', label='Department name')
-    researcher = filters.CharFilter(name='researcher__name', label='Researcher name')
+    area = filters.CharFilter(name='conference__area__name', label='Area name', distinct=True)
+    conference = filters.CharFilter(name='conference__name', label='Conference name', distinct=True)
+    department = filters.CharFilter(name='researchers__department__name', label='Department name', distinct=True)
+    researchers = filters.CharFilter(name='researchers__name', label='Researcher name', distinct=True)
 
     class Meta:
         model = Paper
-        fields = ['area', 'conference', 'researcher', 'year']
+        fields = ['area', 'conference', 'department', 'researchers', 'year']
 
 
 class PaperViewSet(viewsets.ReadOnlyModelViewSet):

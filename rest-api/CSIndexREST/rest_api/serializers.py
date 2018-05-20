@@ -4,31 +4,48 @@ from .models import Area, Conference, Department, Researcher, Paper
 
 
 class AreaSerializer(serializers.ModelSerializer):
+    papers_count = serializers.IntegerField()
+
     class Meta:
         model = Area
-        fields = ('id', 'name', 'label')
+        fields = ('id', 'name', 'label', 'papers_count')
 
 
 class ConferenceSerializer(serializers.ModelSerializer):
+    area = serializers.StringRelatedField(many=False)
+    papers_count = serializers.IntegerField()
+
     class Meta:
         model = Conference
-        fields = ('id', 'area', 'name')
+        fields = ('id', 'area', 'name', 'papers_count')
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
+    researchers_count = serializers.IntegerField()
+    score_value = serializers.FloatField()
+
     class Meta:
         model = Department
-        fields = ('id', 'name')
+        fields = ('id', 'name', 'researchers_count', 'score_value')
 
 
 class ResearcherSerializer(serializers.ModelSerializer):
+    department = serializers.StringRelatedField(many=False)
+
     class Meta:
         model = Researcher
         fields = ('id', 'name', 'department', 'pid')
 
 
 class PaperSerializer(serializers.ModelSerializer):
-    researcher = serializers.StringRelatedField(many=False)
+    conference = serializers.StringRelatedField(many=False)
+    researchers = serializers.StringRelatedField(many=True)
+
+    def to_representation(self, obj):
+        representation = super().to_representation(obj)
+        representation['researchers'] = '; '.join(representation['researchers'])
+        return representation
+
     class Meta:
         model = Paper
-        fields = ('id', 'title', 'conference', 'researcher', 'year', 'authors', 'url')
+        fields = ('id', 'title', 'conference', 'researchers', 'year', 'authors', 'url')

@@ -1,7 +1,7 @@
 import csv
 import pathlib
 
-from rest_api.models import Area, Conference, Department, Researcher, Paper, Score
+from rest_api.models import Area, Conference, Department, Researcher, Paper, DepartmentScore
 
 
 class DataExtractor:
@@ -26,7 +26,7 @@ class DataExtractor:
         print(len(Department.objects.all()))
         print(len(Researcher.objects.all()))
         print(len(Paper.objects.all()))
-        print(len(Score.objects.all()))
+        print(len(DepartmentScore.objects.all()))
 
     def extract_areas(self):
         with open(self.data_dir / self.AREAS_FILE) as csv_file:
@@ -74,7 +74,7 @@ class DataExtractor:
     def extract_papers(self):
         conferences = {conference.name: conference for conference in Conference.objects.all()}
         conference_names = conferences.keys()
-        papers = []
+        papers = {}
 
         for researcher in Researcher.objects.all():
             file_name = self.data_dir / self.PAPERS_FILE.format(researcher.name.replace(' ', '-'))
@@ -86,10 +86,14 @@ class DataExtractor:
                 for row in reader:
                     if row[1] not in conference_names:
                         continue
-
-                    papers.append(Paper(year=row[0], conference=conferences[row[1]], title=row[2],
-                                        authors=row[3], url=row[4], researcher=researcher))
-        Paper.objects.bulk_create(papers)
+                    try:
+                        paper = papers[row[4]]
+                    except KeyError:
+                        paper = Paper(year=int(row[0]), conference=conferences[row[1]], title=row[2],
+                                      authors=row[3], url=row[4])
+                        paper.save()
+                        papers[row[4]] = paper
+                    paper.researchers.add(researcher)
 
     def extract_department_scores(self):
         departments = {department.name: department for department in Department.objects.all()}
@@ -101,8 +105,7 @@ class DataExtractor:
                 reader = csv.reader(csv_file)
                 for row in reader:
                     if row[0] not in department_names:
-                        print(row)
                         continue
 
-                    scores.append(Score(area=area, department=departments[row[0]], score=float(row[1])))
-            Score.objects.bulk_create(scores)
+                    scores.append(DepartmentScore(area=area, department=departments[row[0]], value=float(row[1])))
+        DepartmentScore.objects.bulk_create(scores)
