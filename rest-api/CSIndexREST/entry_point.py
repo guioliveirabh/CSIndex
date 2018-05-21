@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 
@@ -14,6 +15,8 @@ def setup_django():
     call_command('makemigrations', verbosity=0, interactive=False)
     call_command('migrate', verbosity=0, interactive=False)
     call_command('collectstatic', verbosity=0, interactive=False)
+
+    logging.disable(logging.CRITICAL)
 
 
 def entry_point():
