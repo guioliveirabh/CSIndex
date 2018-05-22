@@ -14,19 +14,24 @@ class DataExtractor:
         self.data_dir = data_dir
 
     def run(self):
+        print('=== Extracting data ===')
         self.extract_areas()
         self.extract_conferences()
         self.extract_departments()
         self.extract_researchers()
         self.extract_papers()
         self.extract_department_scores()
+        self.print_stats()
 
-        print(list(Area.objects.all()))
-        print(len(Conference.objects.all()))
-        print(len(Department.objects.all()))
-        print(len(Researcher.objects.all()))
-        print(len(Paper.objects.all()))
-        print(len(DepartmentScore.objects.all()))
+    @staticmethod
+    def print_stats():
+        print('=== Statistics ===')
+        print('{0} areas'.format(len(Area.objects.all())))
+        print('{0} conferences'.format(len(Conference.objects.all())))
+        print('{0} departments'.format(len(Department.objects.all())))
+        print('{0} researchers'.format(len(Researcher.objects.all())))
+        print('{0} papers'.format(len(Paper.objects.all())))
+        print('{0} area-department scores'.format(len(DepartmentScore.objects.all())))
 
     def extract_areas(self):
         with open(self.data_dir / self.AREAS_FILE) as csv_file:

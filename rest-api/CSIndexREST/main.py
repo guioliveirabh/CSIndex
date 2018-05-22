@@ -30,12 +30,15 @@ class StandaloneApplication(gunicorn.app.base.BaseApplication):
         return self.application
 
 
-def main():
+def main(args):
+    print('Args: {0}'.format(args))
+
     options = {
-        'bind': '%s:%s' % ('127.0.0.1', '8080'),
+        'bind': '%s:%s' % (args.ip, str(args.port)),
         'workers': number_of_workers(),
     }
-    print(options)
-    data_extractor = DataExtractor(pathlib.Path('/home/guilherme/git/CSIndex/data'))
+    data_extractor = DataExtractor(args.data_dir)
     data_extractor.run()
+    print('=== Starting HTTP server ===')
+    print('Waiting conections')
     StandaloneApplication(WSGIHandler(), options).run()
