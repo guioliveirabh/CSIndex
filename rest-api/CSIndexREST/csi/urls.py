@@ -18,6 +18,6 @@ title = 'CSIndex'
 
 urlpatterns = [
                   url(r'^', include(router.urls)),
-                  url(r'^docs/', include_docs_urls(title=title)),
-                  url(r'^schema/$', get_schema_view(title=title))
+                  url(r'^docs/', include_docs_urls(title=title, description='CSIndex rest api')),
+                  url(r'^schema/$', get_schema_view(title=title, description='CSIndex rest api'))
               ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -41,12 +41,23 @@ class FilterListOnlySchema(AutoSchema):
 
 
 class AreaViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    retrieve:
+    Return the given research area.
+
+    list:
+    Return a list of all existing research areas.
+    """
+
     queryset = Area.objects.annotate(papers_count=Count('conference__paper__url', distinct=True))
     serializer_class = AreaSerializer
 
 
 class ConferenceFilter(filters.FilterSet):
-    area = filters.CharFilter(name='area__name', label='Area name', distinct=True)
+    area = filters.CharFilter(name='area__name', label='Area name', distinct=True,
+                              required=False, help_text='A unique string value identifying a research area.')
+    name = filters.CharFilter(name='name', label='Conference name', distinct=True,
+                              required=False, help_text='A unique string value identifying a conference.')
 
     class Meta:
         model = Conference
@@ -54,6 +65,14 @@ class ConferenceFilter(filters.FilterSet):
 
 
 class ConferenceViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    retrieve:
+    Return the given conference.
+
+    list:
+    Return a list of all existing conferences. This list can be filtered choosing a research area.
+    """
+
     serializer_class = ConferenceSerializer
     queryset = Conference.objects.annotate(papers_count=Count('paper__url', distinct=True)).order_by('area__name',
                                                                                                      '-papers_count',
@@ -63,7 +82,10 @@ class ConferenceViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class DepartmentFilter(filters.FilterSet):
-    area = filters.CharFilter(name='area', label='Area name', method='filter_area')
+    area = filters.CharFilter(name='area', label='Area name', method='filter_area',
+                              required=False, help_text='A unique string value identifying a research area.')
+    name = filters.CharFilter(name='name', label='Department name', distinct=True,
+                              required=False, help_text='A unique string value identifying a department.')
 
     def filter_area(self, queryset, name, value):
         query = Department.objects.filter(departmentscore__area__name=value)
@@ -79,6 +101,14 @@ class DepartmentFilter(filters.FilterSet):
 
 
 class DepartmentViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    retrieve:
+    Return the given department.
+
+    list:
+    Return a list of all existing departments. This list can be filtered choosing a research area.
+    """
+
     queryset = Department.objects.annotate(researchers_count=Count('researcher__name', distinct=True),
                                            score_value=Value(-1.0,
                                                              output_field=FloatField())).order_by('-researchers_count',
@@ -88,8 +118,10 @@ class DepartmentViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class ResearcherFilter(filters.FilterSet):
-    area = filters.CharFilter(name='paper__conference__area__name', label='Area name', distinct=True)
-    department = filters.CharFilter(name='department__name', label='Department name', distinct=True)
+    area = filters.CharFilter(name='paper__conference__area__name', label='Area name', distinct=True,
+                              required=False, help_text='A unique string value identifying a research area.')
+    department = filters.CharFilter(name='department__name', label='Department name', distinct=True,
+                                    required=False, help_text='A unique string value identifying a department.')
 
     class Meta:
         model = Researcher
@@ -97,6 +129,14 @@ class ResearcherFilter(filters.FilterSet):
 
 
 class ResearcherViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    retrieve:
+    Return the given researcher.
+
+    list:
+    Return a list of all existing researchers. This list can be filtered choosing a research area and/or a department.
+    """
+
     queryset = Researcher.objects.all()
     serializer_class = ResearcherSerializer
     filter_class = ResearcherFilter
@@ -104,10 +144,16 @@ class ResearcherViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class PaperFilter(filters.FilterSet):
-    area = filters.CharFilter(name='conference__area__name', label='Area name', distinct=True)
-    conference = filters.CharFilter(name='conference__name', label='Conference name', distinct=True)
-    department = filters.CharFilter(name='researchers__department__name', label='Department name', distinct=True)
-    researchers = filters.CharFilter(name='researchers__name', label='Researcher name', distinct=True)
+    area = filters.CharFilter(name='conference__area__name', label='Area name', distinct=True,
+                              required=False, help_text='A unique string value identifying a research area.')
+    conference = filters.CharFilter(name='conference__name', label='Conference name', distinct=True,
+                                    required=False, help_text='A unique string value identifying a conference.')
+    department = filters.CharFilter(name='researchers__department__name', label='Department name', distinct=True,
+                                    required=False, help_text='A unique string value identifying a department.')
+    researchers = filters.CharFilter(name='researchers__name', label='Researcher name', distinct=True,
+                                     required=False, help_text='A string value identifying a researcher.')
+    year = filters.CharFilter(name='year', label='Paper year', distinct=True,
+                              required=False, help_text='An integer value identifying the paper\'s year.')
 
     class Meta:
         model = Paper
@@ -115,6 +161,15 @@ class PaperFilter(filters.FilterSet):
 
 
 class PaperViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    retrieve:
+    Return the given paper.
+
+    list:
+    Return a list of all existing papers. This list can be filtered choosing a research area
+    and/or a conference and/ora department and/or a researchers and/or a year.
+    """
+
     queryset = Paper.objects.all()
     serializer_class = PaperSerializer
     filter_class = PaperFilter
