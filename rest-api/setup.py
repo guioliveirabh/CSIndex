@@ -29,14 +29,15 @@ setup(
     packages=find_packages(),
     install_requires=['gunicorn==19.8.1', 'Django==2.0.5', 'djangorestframework==3.8.2', 'coreapi==2.3.3',
                       'Markdown==2.6.11', 'django-filter==1.1.0', 'django-crispy-forms==1.7.2',
-                      'djangorestframework-csv==2.1.0'],
+                      'djangorestframework-csv==2.1.0', 'requests==2.18.4'],
     extras_require={
-        'dev': ['pylint', 'httpie'],
+        'dev': ['pylint'],
     },
     package_data={},
     entry_points={
         'console_scripts': [
             'csi_server=CSIndexREST.entry_point:entry_point',
+            'csi_client=CSIndexREST.client:main'
         ],
     },
 )

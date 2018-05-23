@@ -40,6 +40,15 @@ class FilterListOnlySchema(AutoSchema):
         )
 
 
+class AreaFilter(filters.FilterSet):
+    name = filters.CharFilter(name='name', label='Area name', distinct=True,
+                              required=False, help_text='A unique string value identifying a research area.')
+
+    class Meta:
+        model = Area
+        fields = ['name']
+
+
 class AreaViewSet(viewsets.ReadOnlyModelViewSet):
     """
     retrieve:
@@ -51,6 +60,8 @@ class AreaViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = Area.objects.annotate(papers_count=Count('conference__paper__url', distinct=True))
     serializer_class = AreaSerializer
+    filter_class = AreaFilter
+    schema = FilterListOnlySchema()
 
 
 class ConferenceFilter(filters.FilterSet):
